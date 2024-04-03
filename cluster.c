@@ -19,10 +19,11 @@ int main(int argc, char *argv[]){
     char *s = (char*)calloc(100,sizeof(char));
     while(!feof(file)){
         fscanf(file, "%s\n",s);
+        char *sub = strtok(',',s);
         fprintf(saida,"%s\n",s);
     }
+
     free(s);
-    
 
     fclose(file);
     fclose(saida);
