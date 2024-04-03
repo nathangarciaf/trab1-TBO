@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
 
     
     FILE *file = fopen(argv[1], "r");
-    if(file == NULL){
+    if(!file){
         printf("ARQUIVO DE ENTRADA INEXISTENTE!\n");
         return 0;
     }

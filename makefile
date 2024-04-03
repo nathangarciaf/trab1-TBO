@@ -1,4 +1,5 @@
-all: trab1
+all:
+	gcc -Wall -g -o trab1 *.c
 
-trab1:
-	gcc -Wall -o trab1 *.c
+valgrind:
+	valgrind --track-origins=yes --leak-check=full ./trab1 entrada.txt 2 saida.txt
