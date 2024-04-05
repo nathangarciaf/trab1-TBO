@@ -18,13 +18,12 @@ int main(int argc, char *argv[]){
     FILE *saida = fopen(argv[3], "w");
 
     char *entrada = NULL;
-    char *subs = NULL;
     size_t size = 0;
 
     int len = getline(&entrada, &size, file);
 
     while(len > 0){
-        subs = strtok(entrada,",");
+        char *subs = strtok(entrada,",");
         while(subs){
             printf("%s\n",subs);
             subs = strtok(NULL, ",");
@@ -34,9 +33,7 @@ int main(int argc, char *argv[]){
         len = getline(&entrada, &size, file);
     }
     
-    free(subs);
     free(entrada);
-
     fclose(file);
     fclose(saida);
     return 0;
