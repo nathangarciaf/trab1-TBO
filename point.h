@@ -15,5 +15,8 @@ void point_add_id(Point *p, char* id);
 void point_add_coord(Point *p, char *value);
 void point_print(Point *p);
 void point_free(Point *p);
+char *point_get_id(Point *p);
+
+double euclid_dist(Point *p1, Point *p2);
 
 #endif

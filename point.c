@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #define INIT_TAM 5
 
 struct Point
@@ -48,6 +49,16 @@ void point_add_coord(Point *p, char *value){
     p->dim++;
 }
 
+//p1->dim = p2->dim = dim
+double euclid_dist(Point *p1, Point *p2){
+    int dim = p1->dim;
+    double sum = 0;
+    for(int i = 0; i < dim; i++){
+        sum += ((p1->coord[i] - p2->coord[i]) * (p1->coord[i] - p2->coord[i])); 
+    }
+    return sqrt(sum);
+}
+
 void point_vec_print(PointVec *pv, int size){
     for(int i = 0; i < size; i++){
         point_print(pv[i]);
@@ -68,6 +79,10 @@ void point_vec_free(PointVec *pv, int size){
         point_free(pv[i]);
     }
     free(pv);
+}
+
+char *point_get_id(Point *p){
+    return p->id;
 }
 
 void point_free(Point *p){
