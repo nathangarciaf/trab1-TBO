@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define INIT_TAM 5
 
 struct Point
 {
@@ -70,7 +69,7 @@ void point_print(Point *p){
     for(int i = 0; i < p->dim; i++){
         printf("%.4f  ", p->coord[i]);
     }
-    printf("\n%d",p->dim);
+    printf("\nDIM: %d E GRUPO: %d",p->dim, p->group);
     printf("\n\n");
 }
 
@@ -119,6 +118,7 @@ PointVec * points_reader(PointVec *pv, int *size, int *tam, FILE *f){
             pv = realloc(pv, sizeof(PointVec) * (*tam));
         }
 
+        p->group = *size;
         pv[*size] = p;
         (*size)++;
     }

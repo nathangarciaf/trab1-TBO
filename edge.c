@@ -35,7 +35,16 @@ void edge_weight_calculator(EdgeVec *ev, PointVec *pv, int pv_size){
     }
 }
 
-void print_ev(EdgeVec *ev, int size){
+int weight_cmp(double w1, double w2){
+    return w1 - w2;
+}
+
+void edge_vec_sort(EdgeVec *ev, int size){
+    int (*double_cmp)(double,double) ;
+    qsort(ev,(size_t)size,sizeof(Edge*),);
+}
+
+void edge_vec_print(EdgeVec *ev, int size){
     for(int i = 0; i < size; i++){
         if(!ev[i]){
             printf("CASA %d DO EV É NULA\n",i);

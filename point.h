@@ -1,6 +1,7 @@
 #ifndef POINT_H
 #define POINT_H
 #include <stdio.h>
+#define INIT_TAM 5
 
 typedef struct Point Point;
 typedef struct Point* PointVec;
