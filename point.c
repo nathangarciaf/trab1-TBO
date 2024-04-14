@@ -84,6 +84,47 @@ char *point_get_id(Point *p){
     return p->id;
 }
 
+int point_get_group(Point *p){
+    return p->group;
+}
+
+int point_vec_search(Point *p, PointVec *pv, int pv_size){
+    for(int i = 0; i < pv_size; i++){
+        if(pv[i] == p){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int point_group_find(Point *p, PointVec *pv, int pv_size, int *height){
+    int group = point_get_group(p);
+    int point_idx = point_vec_search(p, pv, pv_size);
+
+    while(point_idx != group){
+        point_idx = pv[point_idx]->group = point_get_group(pv[group]);
+        group = point_get_group(pv[point_idx]);
+        (*height)++;
+    }
+    return group;
+}
+
+void point_union(Point *p1, Point *p2, PointVec *pv, int pv_size){
+    int h1 = 0;
+    int group1 = point_group_find(p1, pv, pv_size, &h1);
+    int h2 = 0;
+    int group2 = point_group_find(p2, pv, pv_size, &h2);
+    if(group1 == group2){
+        return;
+    }
+    if(h1 < h2){
+        pv[group1]->group = group2;
+    }
+    else{
+        pv[group2]->group = group1;
+    }
+}
+
 void point_free(Point *p){
     if(p->coord != NULL)
         free(p->coord);

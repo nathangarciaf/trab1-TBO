@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 
     pv = points_reader(pv,&pv_size, &pv_tam, file);
 
-    //ev_size é o número de arestas possíveis em uma matriz NxN triangular inferior, sendo n = pv_size.
+    //ev_size é o número máximo de arestas possíveis em uma matriz triangular inferior NxN, sendo n = pv_size.
     int ev_size = (((pv_size*pv_size)/2) - (pv_size/2));
     EdgeVec *ev = edge_vec_create(ev_size);
     //Cria o vetor de todas as distâncias
@@ -36,10 +36,12 @@ int main(int argc, char *argv[]){
     int mst_size = 0, mst_tam = INIT_TAM;
     EdgeVec *mst = edge_vec_create(mst_tam);
 
-    mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size);
+    mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size, pv, pv_size);
+    point_vec_print(pv, pv_size);
+    clustering();
     
     point_vec_free(pv, pv_size);
     edge_vec_free(ev, ev_size);
-    edge_vec_free(mst, mst_size);
+    free(mst);
     return 0;
 }

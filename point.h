@@ -17,6 +17,10 @@ void point_add_coord(Point *p, char *value);
 void point_print(Point *p);
 void point_free(Point *p);
 char *point_get_id(Point *p);
+int point_get_group(Point *p);
+
+int point_group_find(Point *p, PointVec *pv, int pv_size, int *height);
+void point_union(Point *p1, Point *p2, PointVec *pv, int pv_size);
 
 double euclid_dist(Point *p1, Point *p2);
 
