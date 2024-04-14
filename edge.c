@@ -14,6 +14,11 @@ EdgeVec *edge_vec_create(int tam){
     return ev;
 }
 
+EdgeVec *kruskal_algoritm(EdgeVec *mst, int *mst_size, int *mst_tam, EdgeVec *ev, int ev_size){
+    
+    return mst;
+}
+
 Edge *edge_create(){
     Edge *edge = (Edge*)calloc(1, sizeof(Edge));
     edge->p1 = NULL;

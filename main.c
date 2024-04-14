@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
     int mst_size = 0, mst_tam = INIT_TAM;
     EdgeVec *mst = edge_vec_create(mst_tam);
 
-    //mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size);
+    mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size);
     
     point_vec_free(pv, pv_size);
     edge_vec_free(ev, ev_size);
