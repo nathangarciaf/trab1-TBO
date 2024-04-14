@@ -30,14 +30,13 @@ int main(int argc, char *argv[]){
     EdgeVec *ev = edge_vec_create(ev_size);
     //Cria o vetor de todas as distâncias
     edge_weight_calculator(ev, pv, pv_size);
-    edge_vec_sort(ev,pv_size);
-    edge_vec_print(ev, ev_size);
-
+    edge_vec_sort(ev,ev_size);
+    
     //Criando a arvóre minima como um vetor de arestas
     int mst_size = 0, mst_tam = INIT_TAM;
     EdgeVec *mst = edge_vec_create(mst_tam);
 
-    mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size);
+    //mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size);
     
     point_vec_free(pv, pv_size);
     edge_vec_free(ev, ev_size);

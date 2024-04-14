@@ -27,7 +27,8 @@ void edge_weight_calculator(EdgeVec *ev, PointVec *pv, int pv_size){
     for(int i = 0; i < pv_size; i++){
         for(int j = i + 1; j < pv_size ; j++){
             ev[ev_idx] = edge_create();
-            ev[ev_idx]->weight = euclid_dist(pv[i], pv[j]);
+            double euclid = euclid_dist(pv[i], pv[j]);
+            ev[ev_idx]->weight = euclid;
             ev[ev_idx]->p1 = pv[i];
             ev[ev_idx]->p2 = pv[j];
             ev_idx++;
@@ -35,13 +36,27 @@ void edge_weight_calculator(EdgeVec *ev, PointVec *pv, int pv_size){
     }
 }
 
+int edge_cmp(const void *edge1, const void *edge2){
+    const Edge *e1 = *(const Edge**)(edge1);
+    const Edge *e2 = *(const Edge**)(edge2);
+    return weight_cmp(e1->weight,e2->weight);
+}
+
 int weight_cmp(double w1, double w2){
-    return w1 - w2;
+    if(w1 > w2){
+        return 1;
+    }
+    else if(w1 < w2){
+        return -1;
+    }
+    else{
+        return 0;
+    }
+    return 0;
 }
 
 void edge_vec_sort(EdgeVec *ev, int size){
-    int (*double_cmp)(double,double) ;
-    qsort(ev,(size_t)size,sizeof(Edge*),);
+    qsort(ev,size,sizeof(Edge*),edge_cmp);
 }
 
 void edge_vec_print(EdgeVec *ev, int size){
