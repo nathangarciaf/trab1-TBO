@@ -11,8 +11,14 @@ struct Point
     int group, dim, coord_size;
 };
 
-PointVec *point_vec_create(int *size, int *tam){
-    PointVec *pv = (PointVec*)calloc(1,sizeof(PointVec) * INIT_TAM);
+struct PointList
+{
+    PointPointer *point_list;
+    int size, used;
+};
+
+PointPointer *point_vec_create(int *size, int *tam){
+    PointPointer *pv = (PointPointer*)calloc(1,sizeof(PointPointer) * INIT_TAM);
     *tam = INIT_TAM;
     *size = 0;
     return pv;
@@ -58,22 +64,119 @@ double euclid_dist(Point *p1, Point *p2){
     return sqrt(sum);
 }
 
-void point_vec_print(PointVec *pv, int size){
+void point_vec_print(PointPointer *pv, int size){
     for(int i = 0; i < size; i++){
         point_print(pv[i]);
     }
 }
 
-void point_print(Point *p){
-    printf("ID do PONTO: %s\nCOORDENADAS DO PONTO: ", p->id);
-    for(int i = 0; i < p->dim; i++){
-        printf("%.4f  ", p->coord[i]);
+void print_groups(PointPointer *pv, int size, int k){
+    //Cria vetor para a checagem de grupos
+    int *check = (int*)calloc(1,k*sizeof(int));
+
+    //Define todos os grupos iniciais como -1 para não haver conflitos
+    for(int i = 0; i < k; i++){
+        check[i] = -1;
     }
-    printf("\nDIM: %d E GRUPO: %d",p->dim, p->group);
-    printf("\n\n");
+
+    int curr_group = -1, checked = 0, cont_group = 0;
+    for(int i = 0; i < size; i++){
+        curr_group = point_get_group(pv[i]);
+
+        //Verificar se o grupo do ponto atual ja foi impresso
+        for(int j = 0; j < k; j++){
+            if(check[j] == curr_group){
+                checked = 1;
+                break;
+            }
+        }
+        if(checked){
+            checked = 0;
+            continue;
+        }
+
+        //Caso o grupo nao tenha sido impresso, imprime os pontos do grupo
+        int comma = 0;
+        for(int j = 0; j < size; j++){
+            if(point_get_group(pv[j]) == curr_group){
+                if(comma != 0){
+                    printf(", ");
+                }
+                else{
+                    comma++;
+                }
+                printf("%s",pv[j]->id);
+            }
+        }
+
+        printf("\n");
+
+        //insere o grupo no vetor de checagem
+        check[cont_group] = curr_group;
+        
+        cont_group++;
+    }
+
+    free(check);
 }
 
-void point_vec_free(PointVec *pv, int size){
+void print_groups_file(PointPointer *pv, int size, int k, FILE *saida){
+    //Cria vetor para a checagem de grupos
+    int *check = (int*)calloc(1,k*sizeof(int));
+
+    //Define todos os grupos iniciais como -1 para não haver conflitos
+    for(int i = 0; i < k; i++){
+        check[i] = -1;
+    }
+
+    int curr_group = -1, checked = 0, cont_group = 0;
+    for(int i = 0; i < size; i++){
+        curr_group = point_get_group(pv[i]);
+
+        //Verificar se o grupo do ponto atual ja foi impresso
+        for(int j = 0; j < k; j++){
+            if(check[j] == curr_group){
+                checked = 1;
+                break;
+            }
+        }
+        if(checked){
+            checked = 0;
+            continue;
+        }
+
+        //Caso o grupo nao tenha sido impresso, imprime os pontos do grupo
+        int comma = 0;
+        for(int j = 0; j < size; j++){
+            if(point_get_group(pv[j]) == curr_group){
+                if(comma != 0){
+                    fprintf(saida,", ");
+                }
+                else{
+                    comma++;
+                }
+                fprintf(saida,"%s",pv[j]->id);
+            }
+        }
+
+        fprintf(saida,"\n");
+
+        //insere o grupo no vetor de checagem
+        check[cont_group] = curr_group;
+        
+        cont_group++;
+    }
+
+    free(check);
+}
+
+void point_print(Point *p){
+    printf("ID do PONTO: %s\n", p->id);
+    printf("DIM: %d E GRUPO: %d",p->dim, p->group);
+    printf("\n");
+}
+
+void point_vec_free(PointPointer *pv, int size){
     for(int i = 0; i < size; i++){
         point_free(pv[i]);
     }
@@ -88,7 +191,13 @@ int point_get_group(Point *p){
     return p->group;
 }
 
-int point_vec_search(Point *p, PointVec *pv, int pv_size){
+void point_vec_reset_groups(PointPointer *pv, int size){
+    for(int i = 0; i < size; i++){
+        pv[i]->group = i;
+    }
+}
+
+int point_vec_search(Point *p, PointPointer *pv, int pv_size){
     for(int i = 0; i < pv_size; i++){
         if(pv[i] == p){
             return i;
@@ -97,7 +206,7 @@ int point_vec_search(Point *p, PointVec *pv, int pv_size){
     return -1;
 }
 
-int point_group_find(Point *p, PointVec *pv, int pv_size, int *height){
+int point_group_find(Point *p, PointPointer *pv, int pv_size, int *height){
     int group = point_get_group(p);
     int point_idx = point_vec_search(p, pv, pv_size);
 
@@ -109,7 +218,7 @@ int point_group_find(Point *p, PointVec *pv, int pv_size, int *height){
     return group;
 }
 
-void point_union(Point *p1, Point *p2, PointVec *pv, int pv_size){
+void point_union(Point *p1, Point *p2, PointPointer *pv, int pv_size){
     int h1 = 0;
     int group1 = point_group_find(p1, pv, pv_size, &h1);
     int h2 = 0;
@@ -133,7 +242,7 @@ void point_free(Point *p){
     free(p);
 }
 
-PointVec * points_reader(PointVec *pv, int *size, int *tam, FILE *f){
+PointPointer * points_reader(PointPointer *pv, int *size, int *tam, FILE *f){
     char *entrada = NULL;
     size_t size_t = 0;
 
@@ -156,7 +265,7 @@ PointVec * points_reader(PointVec *pv, int *size, int *tam, FILE *f){
 
         if(*size == *tam){
             *tam *= 2;
-            pv = realloc(pv, sizeof(PointVec) * (*tam));
+            pv = realloc(pv, sizeof(PointPointer) * (*tam));
         }
 
         p->group = *size;

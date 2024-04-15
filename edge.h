@@ -4,17 +4,17 @@
 #include "point.h"
 
 typedef struct Edge Edge;
-typedef struct Edge* EdgeVec;
+typedef struct Edge* EdgePointer;
 
-EdgeVec *edge_vec_create(int tam);
+EdgePointer *edge_vec_create(int tam);
 int weight_cmp(double w1, double w2);
-void edge_weight_calculator(EdgeVec *ev, PointVec *pv, int pv_size);
-void edge_vec_sort(EdgeVec *ev, int size);
-void edge_vec_free(EdgeVec *ev, int size);
-void edge_vec_print(EdgeVec *ev, int size);
-
-EdgeVec *kruskal_algoritm(EdgeVec *mst, int *mst_size, int *mst_tam, EdgeVec *ev, int ev_size, PointVec *pv, int pv_size);
+void edge_weight_calculator(EdgePointer *ev, PointVec *pv, int pv_size);
+void edge_vec_sort(EdgePointer *ev, int size);
+void edge_vec_free(EdgePointer *ev, int size);
+void edge_vec_print(EdgePointer *ev, int size);
 
 Edge *edge_create();
+Point *edge_get_p1(Edge *e);
+Point *edge_get_p2(Edge *e);
 
 #endif

@@ -9,28 +9,16 @@ struct Edge
     double weight;
 };
 
-EdgeVec *edge_vec_create(int tam){
-    EdgeVec *ev = (EdgeVec*)calloc(1, sizeof(EdgeVec) * tam);
+
+struct EdgeList
+{
+    EdgePointer *edge_list;
+    int size, used;
+};
+
+EdgePointer *edge_vec_create(int tam){
+    EdgePointer *ev = (EdgePointer*)calloc(1, sizeof(EdgePointer) * tam);
     return ev;
-}
-
-EdgeVec *kruskal_algoritm(EdgeVec *mst, int *mst_size, int *mst_tam, EdgeVec *ev, int ev_size, PointVec *pv, int pv_size){
-    for(int i = 0; i < ev_size; i++){
-        Edge *current_edge = ev[i];
-        int h = 0; //Variável não utilizada, porém necessaria para a funcionalidade da função. Essa variável é util no caso do union
-        if(point_group_find(current_edge->p1, pv, pv_size, &h) != point_group_find(current_edge->p2, pv, pv_size, &h)){
-            if(*mst_size == *mst_tam){
-                *mst_tam *= 2;
-                mst = realloc(mst,sizeof(EdgeVec*) * (*mst_tam));
-            }
-            mst[*mst_size] = current_edge;
-            point_union(current_edge->p1,current_edge->p2, pv, pv_size);
-            (*mst_size)++;
-        }
-    }
-
-    point_vec_reset_groups();
-    return mst;
 }
 
 Edge *edge_create(){
@@ -41,7 +29,15 @@ Edge *edge_create(){
     return edge;
 }
 
-void edge_weight_calculator(EdgeVec *ev, PointVec *pv, int pv_size){
+Point *edge_get_p1(Edge *e){
+    return e->p1;
+}
+
+Point *edge_get_p2(Edge *e){
+    return e->p2;
+}
+
+void edge_weight_calculator(EdgePointer *ev, PointVec *pv, int pv_size){
     int ev_idx = 0;
     for(int i = 0; i < pv_size; i++){
         for(int j = i + 1; j < pv_size ; j++){
@@ -74,11 +70,11 @@ int weight_cmp(double w1, double w2){
     return 0;
 }
 
-void edge_vec_sort(EdgeVec *ev, int size){
+void edge_vec_sort(EdgePointer *ev, int size){
     qsort(ev,size,sizeof(Edge*),edge_cmp);
 }
 
-void edge_vec_print(EdgeVec *ev, int size){
+void edge_vec_print(EdgePointer *ev, int size){
     for(int i = 0; i < size; i++){
         if(!ev[i]){
             printf("CASA %d DO EV É NULA\n",i);
@@ -89,7 +85,7 @@ void edge_vec_print(EdgeVec *ev, int size){
     }
 }
 
-void edge_vec_free(EdgeVec *ev, int size){
+void edge_vec_free(EdgePointer *ev, int size){
     for(int i = 0; i < size; i++){
         free(ev[i]);
     }
