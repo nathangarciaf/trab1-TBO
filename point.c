@@ -244,8 +244,11 @@ int point_group_find(Point *p, PointList *pl, int *height){
     return group;
 }
 
+int point_cmp(const void *point1, const void *point2);
+
+
 void pont_list_sort(PointList *pl){
-    
+    qsort(pl->points, pl->used, sizeof(PointPointer), point_cmp);
 }
 
 
