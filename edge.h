@@ -4,14 +4,21 @@
 #include "point.h"
 
 typedef struct Edge Edge;
+typedef struct EdgeList EdgeList;
 typedef struct Edge* EdgePointer;
 
-EdgePointer *edge_vec_create(int tam);
+EdgeList *edge_list_create(int n_points);
+Edge *edge_list_get(EdgeList *el, int i);
+int edge_list_used(EdgeList *el);
+void edge_list_add(EdgeList *el, Edge *e);
+void edge_list_sort(EdgeList *el);
+void edge_list_free(EdgeList *el);
+void mst_free(EdgeList *mst);
+void edge_list_print(EdgeList *el);
+
+void edge_weight_calculator(EdgeList *el, PointList *pl);
+int edge_cmp(const void *edge1, const void *edge2);
 int weight_cmp(double w1, double w2);
-void edge_weight_calculator(EdgePointer *ev, PointVec *pv, int pv_size);
-void edge_vec_sort(EdgePointer *ev, int size);
-void edge_vec_free(EdgePointer *ev, int size);
-void edge_vec_print(EdgePointer *ev, int size);
 
 Edge *edge_create();
 Point *edge_get_p1(Edge *e);

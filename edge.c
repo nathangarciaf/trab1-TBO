@@ -9,16 +9,19 @@ struct Edge
     double weight;
 };
 
-
 struct EdgeList
 {
-    EdgePointer *edge_list;
+    EdgePointer *edges;
     int size, used;
 };
 
-EdgePointer *edge_vec_create(int tam){
-    EdgePointer *ev = (EdgePointer*)calloc(1, sizeof(EdgePointer) * tam);
-    return ev;
+EdgeList *edge_list_create(int n_points){
+    EdgeList *el = calloc(1,sizeof(EdgeList));
+    el->used = 0;
+    //O tamanho da matriz triangular inferior (número maximo de arestas para n x n pontos) é a fórmula abaixo, sendo n = n_points 
+    el->size = ((n_points * n_points) / 2) - (n_points/2);
+    el->edges = calloc(1, sizeof(EdgePointer)*el->size);
+    return el;
 }
 
 Edge *edge_create(){
@@ -37,16 +40,29 @@ Point *edge_get_p2(Edge *e){
     return e->p2;
 }
 
-void edge_weight_calculator(EdgePointer *ev, PointVec *pv, int pv_size){
-    int ev_idx = 0;
-    for(int i = 0; i < pv_size; i++){
-        for(int j = i + 1; j < pv_size ; j++){
-            ev[ev_idx] = edge_create();
-            double euclid = euclid_dist(pv[i], pv[j]);
-            ev[ev_idx]->weight = euclid;
-            ev[ev_idx]->p1 = pv[i];
-            ev[ev_idx]->p2 = pv[j];
-            ev_idx++;
+Edge *edge_list_get(EdgeList *el, int i){
+    return el->edges[i];
+}
+
+int edge_list_used(EdgeList *el){
+    return el->used;
+}
+
+void edge_list_add(EdgeList *el, Edge *e){
+    el->edges[el->used] = e;
+    el->used++;
+}
+
+void edge_weight_calculator(EdgeList *el, PointList *pl){
+    int pl_size = point_list_used(pl);
+    for(int i = 0; i < pl_size; i++){
+        for(int j = i + 1; j < pl_size; j++){
+            Edge *e = edge_create();
+            double euclid = euclid_dist(point_list_get_point(pl, i), point_list_get_point(pl, j));
+            e->weight = euclid;
+            e->p1 = point_list_get_point(pl, i);
+            e->p2 = point_list_get_point(pl, j);
+            edge_list_add(el, e);
         }
     }
 }
@@ -70,24 +86,30 @@ int weight_cmp(double w1, double w2){
     return 0;
 }
 
-void edge_vec_sort(EdgePointer *ev, int size){
-    qsort(ev,size,sizeof(Edge*),edge_cmp);
+void edge_list_sort(EdgeList *el){
+    qsort(el->edges, el->used, sizeof(Edge*),edge_cmp);
 }
 
-void edge_vec_print(EdgePointer *ev, int size){
-    for(int i = 0; i < size; i++){
-        if(!ev[i]){
-            printf("CASA %d DO EV É NULA\n",i);
+void edge_list_free(EdgeList *el){
+    for(int i = 0; i < el->used; i++){
+        free(el->edges[i]);
+    }
+    free(el->edges);
+    free(el);
+}
+
+void mst_free(EdgeList *mst){
+    free(mst->edges);
+    free(mst);
+}
+
+void edge_list_print(EdgeList *el){
+    for(int i = 0; i < el->used; i++){
+        if(!el->edges[i]){
+            printf("CASA %d DO EL É NULA\n",i);
         }
         else{
-            printf("DISTANCIA ENTRE %s & %s: %f\n",point_get_id(ev[i]->p1), point_get_id(ev[i]->p2), ev[i]->weight);
+            printf("DISTANCIA ENTRE %s, GRUPO: %d & %s, GRUPO %d: %f\n",point_get_id(el->edges[i]->p1), point_get_group(el->edges[i]->p1), point_get_id(el->edges[i]->p2), point_get_group(el->edges[i]->p2), el->edges[i]->weight);
         }
     }
-}
-
-void edge_vec_free(EdgePointer *ev, int size){
-    for(int i = 0; i < size; i++){
-        free(ev[i]);
-    }
-    free(ev);
 }

@@ -13,7 +13,7 @@ struct Point
 
 struct PointList
 {
-    PointPointer *point_list;
+    PointPointer *points;
     int size, used;
 };
 
@@ -31,6 +31,14 @@ Point *point_create(){
     p->coord = NULL;
     p->id = NULL;
     return p;
+}
+
+PointList *point_list_create(){
+    PointList *pl = calloc(1,sizeof(PointList));
+    pl->size = INIT_TAM;
+    pl->used = 0;
+    pl->points = calloc(1,sizeof(PointPointer) * pl->size);
+    return pl;
 }
 
 void point_add_id(Point *p, char* id){
@@ -54,6 +62,14 @@ void point_add_coord(Point *p, char *value){
     p->dim++;
 }
 
+Point *point_list_get_point(PointList *pl, int i){
+    return pl->points[i];
+}
+
+int point_list_used(PointList *pl){
+    return pl->used;
+}
+
 //p1->dim = p2->dim = dim
 double euclid_dist(Point *p1, Point *p2){
     int dim = p1->dim;
@@ -64,15 +80,10 @@ double euclid_dist(Point *p1, Point *p2){
     return sqrt(sum);
 }
 
-void point_vec_print(PointPointer *pv, int size){
-    for(int i = 0; i < size; i++){
-        point_print(pv[i]);
-    }
-}
-
-void print_groups(PointPointer *pv, int size, int k){
+void print_groups(PointList *pl, int k){
     //Cria vetor para a checagem de grupos
     int *check = (int*)calloc(1,k*sizeof(int));
+    printf("%d\n",k);
 
     //Define todos os grupos iniciais como -1 para não haver conflitos
     for(int i = 0; i < k; i++){
@@ -80,8 +91,8 @@ void print_groups(PointPointer *pv, int size, int k){
     }
 
     int curr_group = -1, checked = 0, cont_group = 0;
-    for(int i = 0; i < size; i++){
-        curr_group = point_get_group(pv[i]);
+    for(int i = 0; i < pl->used; i++){
+        curr_group = point_get_group(pl->points[i]);
 
         //Verificar se o grupo do ponto atual ja foi impresso
         for(int j = 0; j < k; j++){
@@ -90,22 +101,23 @@ void print_groups(PointPointer *pv, int size, int k){
                 break;
             }
         }
-        if(checked){
+
+        if(checked == 1){
             checked = 0;
             continue;
         }
+        if(cont_group == k)
+            break;
 
         //Caso o grupo nao tenha sido impresso, imprime os pontos do grupo
         int comma = 0;
-        for(int j = 0; j < size; j++){
-            if(point_get_group(pv[j]) == curr_group){
+        for(int j = 0; j < pl->used; j++){
+            if(point_get_group(pl->points[j]) == curr_group){
                 if(comma != 0){
                     printf(", ");
                 }
-                else{
-                    comma++;
-                }
-                printf("%s",pv[j]->id);
+                printf("%s",point_get_id(pl->points[j]));
+                comma++;
             }
         }
 
@@ -113,6 +125,7 @@ void print_groups(PointPointer *pv, int size, int k){
 
         //insere o grupo no vetor de checagem
         check[cont_group] = curr_group;
+        printf("%d\n",cont_group);
         
         cont_group++;
     }
@@ -120,7 +133,7 @@ void print_groups(PointPointer *pv, int size, int k){
     free(check);
 }
 
-void print_groups_file(PointPointer *pv, int size, int k, FILE *saida){
+void print_groups_file(PointList *pl, int k, FILE *saida){
     //Cria vetor para a checagem de grupos
     int *check = (int*)calloc(1,k*sizeof(int));
 
@@ -130,8 +143,8 @@ void print_groups_file(PointPointer *pv, int size, int k, FILE *saida){
     }
 
     int curr_group = -1, checked = 0, cont_group = 0;
-    for(int i = 0; i < size; i++){
-        curr_group = point_get_group(pv[i]);
+    for(int i = 0; i < pl->used; i++){
+        curr_group = point_get_group(pl->points[i]);
 
         //Verificar se o grupo do ponto atual ja foi impresso
         for(int j = 0; j < k; j++){
@@ -147,15 +160,13 @@ void print_groups_file(PointPointer *pv, int size, int k, FILE *saida){
 
         //Caso o grupo nao tenha sido impresso, imprime os pontos do grupo
         int comma = 0;
-        for(int j = 0; j < size; j++){
-            if(point_get_group(pv[j]) == curr_group){
+        for(int j = 0; j < pl->used; j++){
+            if(point_get_group(pl->points[j]) == curr_group){
                 if(comma != 0){
                     fprintf(saida,", ");
                 }
-                else{
-                    comma++;
-                }
-                fprintf(saida,"%s",pv[j]->id);
+                fprintf(saida,"%s",point_get_id(pl->points[j]));
+                comma++;
             }
         }
 
@@ -170,31 +181,43 @@ void print_groups_file(PointPointer *pv, int size, int k, FILE *saida){
     free(check);
 }
 
+void point_list_print(PointList *pl){
+    for(int i = 0; i < pl->used; i++){
+        point_print(pl->points[i]);
+    }
+}
+
 void point_print(Point *p){
     printf("ID do PONTO: %s\n", p->id);
     printf("DIM: %d E GRUPO: %d",p->dim, p->group);
     printf("\n");
 }
 
-void point_vec_free(PointPointer *pv, int size){
-    for(int i = 0; i < size; i++){
-        point_free(pv[i]);
-    }
-    free(pv);
-}
-
 char *point_get_id(Point *p){
     return p->id;
+}
+
+void point_set_group(Point *p, int group){
+    p->group = group;
 }
 
 int point_get_group(Point *p){
     return p->group;
 }
 
-void point_vec_reset_groups(PointPointer *pv, int size){
-    for(int i = 0; i < size; i++){
-        pv[i]->group = i;
+void point_list_reset_groups(PointList *pl){
+    for(int i = 0; i < pl->used; i++){
+        point_set_group(pl->points[i], i);
     }
+}
+
+int point_list_search(PointList *pl, Point *p){
+    for(int i = 0; i < pl->used; i++){
+        if(pl->points[i] == p){
+            return i;
+        }
+    }
+    return -1;
 }
 
 int point_vec_search(Point *p, PointPointer *pv, int pv_size){
@@ -206,31 +229,39 @@ int point_vec_search(Point *p, PointPointer *pv, int pv_size){
     return -1;
 }
 
-int point_group_find(Point *p, PointPointer *pv, int pv_size, int *height){
+int point_group_find(Point *p, PointList *pl, int *height){
     int group = point_get_group(p);
-    int point_idx = point_vec_search(p, pv, pv_size);
+    int point_idx = point_list_search(pl, p);
 
     while(point_idx != group){
-        point_idx = pv[point_idx]->group = point_get_group(pv[group]);
-        group = point_get_group(pv[point_idx]);
-        (*height)++;
+        int curr_group = point_get_group(pl->points[group]);
+        point_set_group(pl->points[point_idx], curr_group);
+        point_idx = curr_group;
+        group = point_get_group(pl->points[point_idx]);
+        if(height)
+            (*height)++;
     }
     return group;
 }
 
-void point_union(Point *p1, Point *p2, PointPointer *pv, int pv_size){
+void pont_list_sort(PointList *pl){
+    
+}
+
+
+void point_union(Point *p1, Point *p2, PointList *pl){
     int h1 = 0;
-    int group1 = point_group_find(p1, pv, pv_size, &h1);
+    int group1 = point_group_find(p1, pl, &h1);
     int h2 = 0;
-    int group2 = point_group_find(p2, pv, pv_size, &h2);
+    int group2 = point_group_find(p2, pl, &h2);
     if(group1 == group2){
         return;
     }
     if(h1 < h2){
-        pv[group1]->group = group2;
+        point_set_group(pl->points[group1], group2);
     }
     else{
-        pv[group2]->group = group1;
+        point_set_group(pl->points[group2], group1);
     }
 }
 
@@ -242,7 +273,15 @@ void point_free(Point *p){
     free(p);
 }
 
-PointPointer * points_reader(PointPointer *pv, int *size, int *tam, FILE *f){
+void point_list_free(PointList *pl){
+    for(int i = 0; i < pl->used; i++){
+        point_free(pl->points[i]);
+    }
+    free(pl->points);
+    free(pl);
+}
+
+PointList *points_reader(PointList *pl, FILE *f){
     char *entrada = NULL;
     size_t size_t = 0;
 
@@ -263,17 +302,17 @@ PointPointer * points_reader(PointPointer *pv, int *size, int *tam, FILE *f){
         }
         len = getline(&entrada, &size_t, f);
 
-        if(*size == *tam){
-            *tam *= 2;
-            pv = realloc(pv, sizeof(PointPointer) * (*tam));
+        if(pl->size == pl->used){
+            pl->size *= 2;
+            pl->points = realloc(pl->points, sizeof(PointPointer)*pl->size);
         }
 
-        p->group = *size;
-        pv[*size] = p;
-        (*size)++;
+        p->group = pl->used;
+        pl->points[pl->used] = p;
+        pl->used++;
     }
 
     free(entrada);
     fclose(f);
-    return pv;
+    return pl;
 }

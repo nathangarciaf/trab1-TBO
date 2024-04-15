@@ -4,27 +4,33 @@
 #define INIT_TAM 5
 
 typedef struct Point Point;
+typedef struct PointList PointList;
 typedef struct Point* PointPointer;
 
-PointPointer *points_reader(PointPointer *pv, int *size, int *tam, FILE *f);
-PointPointer *point_vec_create(int *size, int *tam);
-void point_vec_reset_groups(PointPointer *pv, int size);
-void point_vec_print(PointPointer *pv, int size);
-void print_groups(PointPointer *pv, int size, int k);
-void print_groups_file(PointPointer *pv, int size, int k, FILE *saida);
-void point_vec_free(PointPointer *pv, int size);
+PointList *point_list_create();
+PointList *points_reader(PointList *pl, FILE *f);
+int point_list_used(PointList *pl);
+Point *point_list_get_point(PointList *pl, int i);
+
+void point_list_reset_groups(PointList *pl);
+void pont_list_sort(PointList *pl);
+void point_list_print(PointList *pl);
+
+void print_groups(PointList *pl, int k);
+void print_groups_file(PointList *pl, int k, FILE *saida);
 
 Point *point_create();
 void point_add_id(Point *p, char* id);
 void point_add_coord(Point *p, char *value);
+char *point_get_id(Point *p);
+void point_set_group(Point *p, int group);
+int point_get_group(Point *p);
 void point_print(Point *p);
 void point_free(Point *p);
-char *point_get_id(Point *p);
-int point_get_group(Point *p);
 
-int point_group_find(Point *p, PointPointer *pv, int pv_size, int *height);
-void point_union(Point *p1, Point *p2, PointPointer *pv, int pv_size);
-
+int point_group_find(Point *p, PointList *pl, int *height);
+void point_union(Point *p1, Point *p2, PointList *pl);
 double euclid_dist(Point *p1, Point *p2);
+void point_list_free(PointList *pl);
 
 #endif

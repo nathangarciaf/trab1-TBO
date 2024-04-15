@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "point.h"
 #include "edge.h"
 #include "algorithm.h"
 
@@ -20,37 +19,43 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    //Cria um vetor com todos os pontos no arquivo de entrada
-    int pv_size = 0, pv_tam = 0;
-    PointPointer *pv = point_vec_create(&pv_size,&pv_tam);
+    //Cria um tipo PointList com um vetor que armazena todos os pontos no arquivo de entrada
+    PointList *pl = point_list_create();
+    //Le os pontos do arquivo
+    pl = points_reader(pl, file);
 
-    pv = points_reader(pv,&pv_size, &pv_tam, file);
+    //Cria uma lista para armazenar todas as arestas
+    EdgeList *el = edge_list_create(point_list_used(pl));
+    //Calcula as arestas
+    edge_weight_calculator(el, pl);
+    //Ordena a lista de arestas
+    edge_list_sort(el);
+    //edge_list_print(el);
 
-    //ev_size é o número máximo de arestas possíveis em uma matriz triangular inferior NxN, sendo n = pv_size.
-    int ev_size = (((pv_size*pv_size)/2) - (pv_size/2));
-    EdgePointer *ev = edge_vec_create(ev_size);
-    //Cria o vetor de todas as distâncias
-    edge_weight_calculator(ev, pv, pv_size);
-    edge_vec_sort(ev,ev_size);
     
     //Criando a arvóre minima como um vetor de arestas
-    int mst_size = 0, mst_tam = INIT_TAM;
-    EdgePointer *mst = edge_vec_create(mst_tam);
+    EdgeList *mst = edge_list_create(point_list_used(pl));
 
-    mst = kruskal_algoritm(mst, &mst_size,&mst_tam, ev, ev_size, pv, pv_size);
+    kruskal_algoritm(mst, el, pl);
+    //edge_list_print(mst);
+    //point_list_print(pl);
+    
     //Numero de grupos
     int k = atoi(argv[2]);
-    clustering(mst, mst_size, pv, pv_size, k);
+    clustering(mst, pl, k);
 
-    //point_vec_print(pv, pv_size);
-    //print_groups(pv, pv_size, k);
-
+    point_list_sort(pl);
+    print_groups(pl, k);
+    /*
     FILE *saida = fopen(argv[3],"w");
-    print_groups_file(pv, pv_size, k,saida);
-    
-    point_vec_free(pv, pv_size);
-    edge_vec_free(ev, ev_size);
-    free(mst);
-    fclose(saida);
+    //print_groups_file(pv, pv_size, k,saida);
+    //point_vec_print(pv,pv_size);
+    */
+    //edge_vec_free(ev, ev_size);
+    //free(mst);
+    //fclose(saida);
+    point_list_free(pl);
+    edge_list_free(el);
+    mst_free(mst);
     return 0;
 }
