@@ -41,7 +41,6 @@ void clustering(EdgeList *mst, PointList *pl, int k){
         Edge *current_edge = edge_list_get(mst,i);
         int p = edge_get_p1(current_edge);
         int q = edge_get_p2(current_edge);
-
         if(find(ids, p) != find(ids, q)){
             unite(ids, sizes, p, q);
         }

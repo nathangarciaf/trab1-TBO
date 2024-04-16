@@ -97,6 +97,7 @@ void edge_list_free(EdgeList *el){
     free(el);
 }
 
+//Função espécifica pois a MST não possui arestas próprias, apenas os endereços das arestas da EdgeList principal
 void mst_free(EdgeList *mst){
     free(mst->edges);
     free(mst);
