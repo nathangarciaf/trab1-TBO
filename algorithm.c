@@ -10,7 +10,7 @@ void kruskal_algoritm(EdgeList *mst, EdgeList* el, int pl_size){
     for(int i = 0; i < pl_size; i++){
         ids[i] = i;
         sizes[i] = 1;
-    }
+    } 
 
     for(int i = 0; i < edge_list_used(el); i++){
         Edge *current_edge = edge_list_get(el, i);

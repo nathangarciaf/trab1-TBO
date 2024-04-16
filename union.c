@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "union.h"
 
-//Todos os algoritmos a seguir do UF são referentes ao algoritmo com: Weighted QU com compressao da árvore
+//Todos os algoritmos a seguir do UF são referentes ao algoritmo com: Weighted QU + path compression
 
 int find(int *ids, int i){
     while (i != ids[i]) {
