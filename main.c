@@ -31,7 +31,6 @@ int main(int argc, char *argv[]){
     //Ordena a lista de arestas
     edge_list_sort(el);
     //edge_list_print(el);
-
     
     //Criando a arvóre minima como um vetor de arestas
     EdgeList *mst = edge_list_create(point_list_used(pl));
@@ -45,15 +44,18 @@ int main(int argc, char *argv[]){
     clustering(mst, pl, k);
 
     point_list_sort(pl);
-    print_groups(pl, k);
-    /*
+    //edge_list_print(mst);
+    point_list_print(pl);
+    //print_groups(pl, k);
+    
     FILE *saida = fopen(argv[3],"w");
-    //print_groups_file(pv, pv_size, k,saida);
-    //point_vec_print(pv,pv_size);
-    */
-    //edge_vec_free(ev, ev_size);
-    //free(mst);
-    //fclose(saida);
+    if(!saida){
+        printf("ARQUIVO DE SAIDA NÃO CONSEGUIU SER CRIADO!\n");
+        return 0;
+    }
+    print_groups_file(pl, k, saida);
+    fclose(saida);
+    
     point_list_free(pl);
     edge_list_free(el);
     mst_free(mst);

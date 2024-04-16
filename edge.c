@@ -55,8 +55,8 @@ void edge_list_add(EdgeList *el, Edge *e){
 
 void edge_weight_calculator(EdgeList *el, PointList *pl){
     int pl_size = point_list_used(pl);
-    for(int i = 0; i < pl_size; i++){
-        for(int j = i + 1; j < pl_size; j++){
+    for(int i = 1; i < pl_size; i++){
+        for(int j = 0; j < i; j++){
             Edge *e = edge_create();
             double euclid = euclid_dist(point_list_get_point(pl, i), point_list_get_point(pl, j));
             e->weight = euclid;
@@ -68,8 +68,8 @@ void edge_weight_calculator(EdgeList *el, PointList *pl){
 }
 
 int edge_cmp(const void *edge1, const void *edge2){
-    const Edge *e1 = *(const Edge**)(edge1);
-    const Edge *e2 = *(const Edge**)(edge2);
+    const Edge *e1 = *(const EdgePointer*)(edge1);
+    const Edge *e2 = *(const EdgePointer*)(edge2);
     return weight_cmp(e1->weight,e2->weight);
 }
 
@@ -109,7 +109,7 @@ void edge_list_print(EdgeList *el){
             printf("CASA %d DO EL É NULA\n",i);
         }
         else{
-            printf("DISTANCIA ENTRE %s, GRUPO: %d & %s, GRUPO %d: %f\n",point_get_id(el->edges[i]->p1), point_get_group(el->edges[i]->p1), point_get_id(el->edges[i]->p2), point_get_group(el->edges[i]->p2), el->edges[i]->weight);
+            printf("%s, %d, %d & %s, %d, %d : %f\n",point_get_id(el->edges[i]->p1), point_get_group(el->edges[i]->p1), point_get_weight(el->edges[i]->p1), point_get_id(el->edges[i]->p2), point_get_group(el->edges[i]->p2), point_get_weight(el->edges[i]->p2), el->edges[i]->weight);
         }
     }
 }

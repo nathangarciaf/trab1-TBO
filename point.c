@@ -8,7 +8,7 @@ struct Point
 {
     char *id;
     double *coord;
-    int group, dim, coord_size;
+    int group, dim, coord_size, weight;
 };
 
 struct PointList
@@ -17,17 +17,11 @@ struct PointList
     int size, used;
 };
 
-PointPointer *point_vec_create(int *size, int *tam){
-    PointPointer *pv = (PointPointer*)calloc(1,sizeof(PointPointer) * INIT_TAM);
-    *tam = INIT_TAM;
-    *size = 0;
-    return pv;
-}
-
 Point *point_create(){
     Point *p = calloc(1, sizeof(Point));
     p->dim = 0;
     p->coord_size = 0;
+    p->weight = 1;
     p->coord = NULL;
     p->id = NULL;
     return p;
@@ -83,7 +77,6 @@ double euclid_dist(Point *p1, Point *p2){
 void print_groups(PointList *pl, int k){
     //Cria vetor para a checagem de grupos
     int *check = (int*)calloc(1,k*sizeof(int));
-    printf("%d\n",k);
 
     //Define todos os grupos iniciais como -1 para não haver conflitos
     for(int i = 0; i < k; i++){
@@ -92,7 +85,7 @@ void print_groups(PointList *pl, int k){
 
     int curr_group = -1, checked = 0, cont_group = 0;
     for(int i = 0; i < pl->used; i++){
-        curr_group = point_get_group(pl->points[i]);
+        curr_group = point_group_find(pl->points[i], pl);
 
         //Verificar se o grupo do ponto atual ja foi impresso
         for(int j = 0; j < k; j++){
@@ -106,8 +99,7 @@ void print_groups(PointList *pl, int k){
             checked = 0;
             continue;
         }
-        if(cont_group == k)
-            break;
+
 
         //Caso o grupo nao tenha sido impresso, imprime os pontos do grupo
         int comma = 0;
@@ -125,7 +117,6 @@ void print_groups(PointList *pl, int k){
 
         //insere o grupo no vetor de checagem
         check[cont_group] = curr_group;
-        printf("%d\n",cont_group);
         
         cont_group++;
     }
@@ -144,7 +135,7 @@ void print_groups_file(PointList *pl, int k, FILE *saida){
 
     int curr_group = -1, checked = 0, cont_group = 0;
     for(int i = 0; i < pl->used; i++){
-        curr_group = point_get_group(pl->points[i]);
+        curr_group = point_group_find(pl->points[i], pl);
 
         //Verificar se o grupo do ponto atual ja foi impresso
         for(int j = 0; j < k; j++){
@@ -163,7 +154,7 @@ void print_groups_file(PointList *pl, int k, FILE *saida){
         for(int j = 0; j < pl->used; j++){
             if(point_get_group(pl->points[j]) == curr_group){
                 if(comma != 0){
-                    fprintf(saida,", ");
+                    fprintf(saida,",");
                 }
                 fprintf(saida,"%s",point_get_id(pl->points[j]));
                 comma++;
@@ -189,7 +180,7 @@ void point_list_print(PointList *pl){
 
 void point_print(Point *p){
     printf("ID do PONTO: %s\n", p->id);
-    printf("DIM: %d E GRUPO: %d",p->dim, p->group);
+    printf("GRUPO: %d", p->group);
     printf("\n");
 }
 
@@ -201,13 +192,22 @@ void point_set_group(Point *p, int group){
     p->group = group;
 }
 
+void point_set_weight(Point *p, int weight){
+    p->weight = weight;
+}
+
+int point_get_weight(Point *p){
+    return p->weight;
+}
+
 int point_get_group(Point *p){
     return p->group;
 }
 
-void point_list_reset_groups(PointList *pl){
+void point_list_reset_groups_and_weight(PointList *pl){
     for(int i = 0; i < pl->used; i++){
         point_set_group(pl->points[i], i);
+        point_set_weight(pl->points[i], 1);
     }
 }
 
@@ -229,7 +229,7 @@ int point_vec_search(Point *p, PointPointer *pv, int pv_size){
     return -1;
 }
 
-int point_group_find(Point *p, PointList *pl, int *height){
+int point_group_find(Point *p, PointList *pl){
     int group = point_get_group(p);
     int point_idx = point_list_search(pl, p);
 
@@ -238,33 +238,40 @@ int point_group_find(Point *p, PointList *pl, int *height){
         point_set_group(pl->points[point_idx], curr_group);
         point_idx = curr_group;
         group = point_get_group(pl->points[point_idx]);
-        if(height)
-            (*height)++;
     }
     return group;
 }
 
-int point_cmp(const void *point1, const void *point2);
+int point_cmp(const void *point1, const void *point2){
+    const Point *p1 = *(const PointPointer*)(point1);
+    const Point *p2 = *(const PointPointer*)(point2);
+    return strcmp(p1->id,p2->id);
+}
 
 
-void pont_list_sort(PointList *pl){
+void point_list_sort(PointList *pl){
     qsort(pl->points, pl->used, sizeof(PointPointer), point_cmp);
 }
 
 
 void point_union(Point *p1, Point *p2, PointList *pl){
-    int h1 = 0;
-    int group1 = point_group_find(p1, pl, &h1);
-    int h2 = 0;
-    int group2 = point_group_find(p2, pl, &h2);
+    int group1 = point_group_find(p1, pl);
+    int group2 = point_group_find(p2, pl);
     if(group1 == group2){
         return;
     }
-    if(h1 < h2){
+
+    Point *p1_father = point_list_get_point(pl, group1);
+    Point *p2_father = point_list_get_point(pl, group2);
+
+    //printf("DENTRO DO AGRUPAMENTO::\nPESO DE %s: %d\nPESO DE %s: %d\n",p1->id,p1->weight, p2->id, p2->weight);
+    if(p1_father->weight < p2_father->weight){
         point_set_group(pl->points[group1], group2);
+        p2_father->weight += p1_father->weight;
     }
     else{
         point_set_group(pl->points[group2], group1);
+        p1_father->weight += p2_father->weight;
     }
 }
 
