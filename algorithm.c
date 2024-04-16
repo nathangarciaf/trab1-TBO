@@ -2,27 +2,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void clustering(EdgeList *mst, PointList *pl, int k){
-    for(int i = 0; i < edge_list_used(mst) - (k-1); i++){
-        Edge *current_edge = edge_list_get(mst,i);
-        int grp1 = point_group_find(edge_get_p1(current_edge), pl);
-        int grp2 = point_group_find(edge_get_p2(current_edge), pl);
-        //printf("PONTO %s DO GRUPO %d PESO %d\nPONTO %s DO GRUPO %d PESO %d\n",point_get_id(edge_get_p1(current_edge)), grp1, point_get_weight(edge_get_p1(current_edge)), point_get_id(edge_get_p2(current_edge)), grp2, point_get_weight(edge_get_p2(current_edge)));
-        if(grp1 != grp2){
-            point_union(edge_get_p1(current_edge),edge_get_p2(current_edge), pl);
-        }
-        //printf("PÓS AGRUPAMENTO:::\nPONTO %s DO GRUPO %d PESO %d\nPONTO %s DO GRUPO %d PESO %d\n\n",point_get_id(edge_get_p1(current_edge)), point_group_find(edge_get_p1(current_edge), pl), point_get_weight(edge_get_p1(current_edge)), point_get_id(edge_get_p2(current_edge)), point_group_find(edge_get_p2(current_edge), pl), point_get_weight(edge_get_p2(current_edge)));
+void kruskal_algoritm(EdgeList *mst, EdgeList* el, int pl_size){
+    //Vetor com os indices referentes aos pontos e seus respectivos grupos(ids[i] = grupo de i)
+    int *ids = calloc(1,sizeof(int) * pl_size);
+    //Vetor com os pesos de cada ponto(sizes[i] = peso da arvóre pendurada em i)
+    int *sizes = calloc(1,sizeof(int) * pl_size);
+    for(int i = 0; i < pl_size; i++){
+        ids[i] = i;
+        sizes[i] = 1;
     }
-}
 
-void kruskal_algoritm(EdgeList *mst, EdgeList* el, PointList *pl){
     for(int i = 0; i < edge_list_used(el); i++){
         Edge *current_edge = edge_list_get(el, i);
-        if(point_group_find(edge_get_p1(current_edge), pl) != point_group_find(edge_get_p2(current_edge), pl)){
-            point_union(edge_get_p1(current_edge),edge_get_p2(current_edge), pl);
+        int p = edge_get_p1(current_edge);
+        int q = edge_get_p2(current_edge);
+        if(find(ids, p) != find(ids, q)){
+            unite(ids, sizes, p, q);
             edge_list_add(mst, current_edge);
         }
     }
 
-    point_list_reset_groups_and_weight(pl);
+    free(ids);
+    free(sizes);
+}
+
+void clustering(EdgeList *mst, PointList *pl, int k){
+    int pl_size = point_list_used(pl);
+    //Vetor com os indices referentes aos pontos e seus respectivos grupos(ids[i] = grupo de i)
+    int *ids = calloc(1,sizeof(int) * pl_size);
+    //Vetor com os pesos de cada ponto(sizes[i] = peso da arvóre pendurada em i)
+    int *sizes = calloc(1,sizeof(int) * pl_size);
+    for(int i = 0; i < pl_size; i++){
+        ids[i] = i;
+        sizes[i] = 1;
+    }
+
+    for(int i = 0; i < edge_list_used(mst) - (k-1); i++){
+        Edge *current_edge = edge_list_get(mst,i);
+        int p = edge_get_p1(current_edge);
+        int q = edge_get_p2(current_edge);
+
+        if(find(ids, p) != find(ids, q)){
+            unite(ids, sizes, p, q);
+        }
+    }
+
+    //Atualiza os grupos na lista de pontos
+    for(int i = 0; i < pl_size; i++){
+        point_set_group(point_list_get(pl,i), find(ids,i));
+    }
+
+    free(ids);
+    free(sizes);
 }

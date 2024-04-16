@@ -5,7 +5,7 @@
 
 struct Edge
 {
-    Point *p1, *p2;
+    int p1, p2;
     double weight;
 };
 
@@ -26,17 +26,17 @@ EdgeList *edge_list_create(int n_points){
 
 Edge *edge_create(){
     Edge *edge = (Edge*)calloc(1, sizeof(Edge));
-    edge->p1 = NULL;
-    edge->p2 = NULL;
+    edge->p1 = -1;
+    edge->p2 = -1;
     edge->weight = 0;
     return edge;
 }
 
-Point *edge_get_p1(Edge *e){
+int edge_get_p1(Edge *e){
     return e->p1;
 }
 
-Point *edge_get_p2(Edge *e){
+int edge_get_p2(Edge *e){
     return e->p2;
 }
 
@@ -58,10 +58,9 @@ void edge_weight_calculator(EdgeList *el, PointList *pl){
     for(int i = 1; i < pl_size; i++){
         for(int j = 0; j < i; j++){
             Edge *e = edge_create();
-            double euclid = euclid_dist(point_list_get_point(pl, i), point_list_get_point(pl, j));
-            e->weight = euclid;
-            e->p1 = point_list_get_point(pl, i);
-            e->p2 = point_list_get_point(pl, j);
+            e->weight = euclid_dist(pl, i, j);
+            e->p1 = i;
+            e->p2 = j;
             edge_list_add(el, e);
         }
     }
@@ -101,15 +100,4 @@ void edge_list_free(EdgeList *el){
 void mst_free(EdgeList *mst){
     free(mst->edges);
     free(mst);
-}
-
-void edge_list_print(EdgeList *el){
-    for(int i = 0; i < el->used; i++){
-        if(!el->edges[i]){
-            printf("CASA %d DO EL É NULA\n",i);
-        }
-        else{
-            printf("%s, %d, %d & %s, %d, %d : %f\n",point_get_id(el->edges[i]->p1), point_get_group(el->edges[i]->p1), point_get_weight(el->edges[i]->p1), point_get_id(el->edges[i]->p2), point_get_group(el->edges[i]->p2), point_get_weight(el->edges[i]->p2), el->edges[i]->weight);
-        }
-    }
 }

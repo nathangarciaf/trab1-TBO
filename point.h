@@ -7,33 +7,25 @@ typedef struct Point Point;
 typedef struct PointList PointList;
 typedef struct Point* PointPointer;
 
+Point *point_create();
+void point_set_id(Point *p, char* id);
+void point_set_group(Point *p, int group);
+void point_add_coord(Point *p, char *value);
+
 PointList *point_list_create();
 PointList *points_reader(PointList *pl, FILE *f);
+Point *point_list_get(PointList *pl, int i);
 int point_list_used(PointList *pl);
-Point *point_list_get_point(PointList *pl, int i);
 
-void point_list_reset_groups_and_weight(PointList *pl);
-void point_list_sort(PointList *pl);
 int point_cmp(const void *point1, const void *point2);
-void point_list_print(PointList *pl);
+void point_list_sort(PointList *pl);
 
-void print_groups(PointList *pl, int k);
+double euclid_dist(PointList *pl, int p1, int p2);
+
+void point_list_print(PointList *pl);
 void print_groups_file(PointList *pl, int k, FILE *saida);
 
-Point *point_create();
-void point_add_id(Point *p, char* id);
-void point_add_coord(Point *p, char *value);
-char *point_get_id(Point *p);
-void point_set_group(Point *p, int group);
-void point_set_weight(Point *p, int weight);
-int point_get_group(Point *p);
-int point_get_weight(Point *p);
-void point_print(Point *p);
-void point_free(Point *p);
-
-int point_group_find(Point *p, PointList *pl);
-void point_union(Point *p1, Point *p2, PointList *pl);
-double euclid_dist(Point *p1, Point *p2);
 void point_list_free(PointList *pl);
+void point_free(Point *p);
 
 #endif

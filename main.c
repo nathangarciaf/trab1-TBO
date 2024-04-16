@@ -30,32 +30,28 @@ int main(int argc, char *argv[]){
     edge_weight_calculator(el, pl);
     //Ordena a lista de arestas
     edge_list_sort(el);
-    //edge_list_print(el);
     
     //Criando a arvóre minima como um vetor de arestas
     EdgeList *mst = edge_list_create(point_list_used(pl));
+    kruskal_algoritm(mst, el, point_list_used(pl));
 
-    kruskal_algoritm(mst, el, pl);
-    //edge_list_print(mst);
-    //point_list_print(pl);
-    
     //Numero de grupos
     int k = atoi(argv[2]);
+    //Agrupamento final
     clustering(mst, pl, k);
-
+    //Ordenar os pontos em ordem alfabética
     point_list_sort(pl);
-    //edge_list_print(mst);
-    point_list_print(pl);
-    //print_groups(pl, k);
     
+    //Abre o arquivo de saida
     FILE *saida = fopen(argv[3],"w");
     if(!saida){
         printf("ARQUIVO DE SAIDA NÃO CONSEGUIU SER CRIADO!\n");
         return 0;
     }
+    //Imprime os respectivos pontos dos grupos no arquivo saida
     print_groups_file(pl, k, saida);
-    fclose(saida);
     
+    //Desaloco a memória das estruturas criadas
     point_list_free(pl);
     edge_list_free(el);
     mst_free(mst);
