@@ -26,7 +26,7 @@ void kruskal_algoritm(EdgeList *mst, EdgeList* el, int pl_size){
     free(sizes);
 }
 
-void clustering(EdgeList *mst, PointList *pl, int k){
+void group_designation(EdgeList *mst, PointList *pl, int k){
     int pl_size = point_list_used(pl);
     //Vetor com os indices referentes aos pontos e seus respectivos grupos(ids[i] = grupo de i)
     int *ids = calloc(1,sizeof(int) * pl_size);

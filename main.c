@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
     //Numero de grupos
     int k = atoi(argv[2]);
     //Agrupamento final
-    clustering(mst, pl, k);
+    group_designation(mst, pl, k);
     //Ordenar os pontos em ordem alfabética
     point_list_sort(pl);
     
@@ -56,5 +56,6 @@ int main(int argc, char *argv[]){
     point_list_free(pl);
     edge_list_free(el);
     mst_free(mst);
+
     return 0;
 }
