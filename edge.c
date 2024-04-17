@@ -55,8 +55,8 @@ void edge_list_add(EdgeList *el, Edge *e){
 
 void edge_weight_calculator(EdgeList *el, PointList *pl){
     int pl_size = point_list_used(pl);
-    for(int i = 1; i < pl_size; i++){
-        for(int j = 0; j < i; j++){
+    for(int i = 0; i < pl_size; i++){
+        for(int j = i + 1; j < pl_size; j++){
             Edge *e = edge_create();
             e->weight = euclid_dist(pl, i, j);
             e->p1 = i;
